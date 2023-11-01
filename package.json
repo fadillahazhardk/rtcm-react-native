@@ -1,6 +1,6 @@
 {
-  "name": "@gnss/rtcm",
-  "version": "0.1.5",
+  "name": "@gnss/rtcm-react-native",
+  "version": "1.0.0",
   "description": "RTCM 3.3 decoder/encoder",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -40,5 +40,8 @@
     "stream": "^0.0.2",
     "text-encoding": "^0.7.0"
   },
-  "readmeFilename": "README.md"
+  "bugs": {
+    "url": "https://github.com/node-ntrip/rtcm/issues"
+  },
+  "homepage": "https://github.com/node-ntrip/rtcm#readme"
 }
