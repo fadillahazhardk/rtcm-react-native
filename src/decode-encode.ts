@@ -18,7 +18,7 @@
 
 import 'reflect-metadata';
 import { BitStream } from 'bit-buffer-ts';
-import { TextDecoder } from "util";
+import { TextDecoder } from 'text-encoding';
 
 class Coder {
     private static readonly definitions: any[] = [];
@@ -30,7 +30,7 @@ class Coder {
 
     private lines: string[] = [];
 
-    constructor(private readonly parent?: Coder) {}
+    constructor(private readonly parent?: Coder) { }
 
     code(...code: string[]) {
         this.lines.push(...code);
@@ -91,7 +91,7 @@ export class DecoderEncoder {
         this.decoder.code(`for (let i = 0; i < ${length}; i++)`);
 
         this.encoder.code(`if (o.${prop}.length !== ${length})`,
-                `\tthrow new Error("Incorrect number of elements in " + o.constructor.name + "['${prop}']: " + o.${prop}.length + " found, " + ${length} + " expected (max)");`)
+            `\tthrow new Error("Incorrect number of elements in " + o.constructor.name + "['${prop}']: " + o.${prop}.length + " found, " + ${length} + " expected (max)");`)
         this.encoder.code(`for (let i = 0; i < ${length}; i++)`);
     }
 
@@ -155,28 +155,28 @@ export class DecoderEncoder {
         this.decoder.set(prop, `s.readString(s.readBits(${lengthBits}), ${DecoderEncoder.latin1Decoder});`);
 
         this.encoder.code(`{`,
-                `\ts.writeBits(o.${prop}.length, ${lengthBits});`,
-                `\tfor (let i = 0; i < o.${prop}.length; i++) {`,
-                    `\t\tconst cp = o.${prop}.codePointAt(i);`,
-                    `\t\tif (cp > 255)`,
-                        `\t\t\tthrow new Error("Invalid latin1 codepoint " + cp);`,
-                    `\ts.writeUint8(cp);`,
-                `\t}`,
-        `}`);
+            `\ts.writeBits(o.${prop}.length, ${lengthBits});`,
+            `\tfor (let i = 0; i < o.${prop}.length; i++) {`,
+            `\t\tconst cp = o.${prop}.codePointAt(i);`,
+            `\t\tif (cp > 255)`,
+            `\t\t\tthrow new Error("Invalid latin1 codepoint " + cp);`,
+            `\ts.writeUint8(cp);`,
+            `\t}`,
+            `}`);
     }
 
     utf8(prop: any, charactersBits: number, lengthBits: number): void {
         this.decoder.code('{',
-                `\ts.index += ${charactersBits};`,
-                `\to.${prop} = s.readString(s.readBits(${lengthBits}), ${DecoderEncoder.utf8Decoder});`,
-        '}');
+            `\ts.index += ${charactersBits};`,
+            `\to.${prop} = s.readString(s.readBits(${lengthBits}), ${DecoderEncoder.utf8Decoder});`,
+            '}');
 
         this.encoder.code('{',
-                `\tlet encoded = ${DecoderEncoder.utf8Encoder}.encode(o.${prop});`,
-                `\ts.writeBits(o.${prop}.length, ${charactersBits});`,
-                `\ts.writeBits(encoded.length, ${lengthBits});`,
-                `\ts.writeBuffer(encoded);`,
-        '}');
+            `\tlet encoded = ${DecoderEncoder.utf8Encoder}.encode(o.${prop});`,
+            `\ts.writeBits(o.${prop}.length, ${charactersBits});`,
+            `\ts.writeBits(encoded.length, ${lengthBits});`,
+            `\ts.writeBuffer(encoded);`,
+            '}');
     }
 }
 
@@ -186,7 +186,7 @@ export function getDecoderEncoder(target: any): DecoderEncoder {
 
     if (!Reflect.hasOwnMetadata(decoderEncoderKey, c))
         Reflect.defineMetadata(decoderEncoderKey,
-                new DecoderEncoder(Reflect.getMetadata(decoderEncoderKey, c)), c);
+            new DecoderEncoder(Reflect.getMetadata(decoderEncoderKey, c)), c);
 
     return Reflect.getMetadata(decoderEncoderKey, c) as DecoderEncoder;
 }
@@ -208,10 +208,10 @@ export const Utf8 = (charactersBits: number, lengthBits: number) => propertyDeco
 
 export const Obj = (constructor: (new () => any) | (new (internalGuard: never) => any)) => propertyDecorator((de, key) => de.object(key, constructor));
 export const Arr = (length: string | number, type: PropertyDecorator) =>
-        (target: any, propertyKey: any): void => {
-            getDecoderEncoder(target).array(propertyKey, length);
-            type(target, propertyKey + '[i]');
-        }
+    (target: any, propertyKey: any): void => {
+        getDecoderEncoder(target).array(propertyKey, length);
+        type(target, propertyKey + '[i]');
+    }
 export const ArrLength = (bits: number, arrayProp: string) => propertyDecorator((de, key) => de.arrayLength(key, bits, arrayProp));
 
 export const If = (prop: string) => propertyDecorator((de) => de.if(prop));
